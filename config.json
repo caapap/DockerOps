@@ -1,0 +1,81 @@
+{
+  "registries": [
+    {
+      "name": "阿里云",
+      "url": "registry.cn-hangzhou.aliyuncs.com",
+      "priority": 1,
+      "auth_required": false,
+      "timeout": 15,
+      "description": "阿里云容器镜像服务"
+    },
+    {
+      "name": "腾讯云",
+      "url": "ccr.ccs.tencentyun.com",
+      "priority": 2,
+      "auth_required": false,
+      "timeout": 15,
+      "description": "腾讯云容器镜像服务"
+    },
+    {
+      "name": "华为云",
+      "url": "swr.cn-north-4.myhuaweicloud.com",
+      "priority": 3,
+      "auth_required": false,
+      "timeout": 15,
+      "description": "华为云容器镜像服务"
+    },
+    {
+      "name": "xuanyuan",
+      "url": "docker.xuanyuan.top",
+      "priority": 5,
+      "auth_required": false,
+      "timeout": 15,
+      "description": "xuanyuan容器镜像服务"
+    },
+    {
+      "name": "Docker Hub",
+      "url": "registry-1.docker.io",
+      "priority": 10,
+      "auth_required": false,
+      "timeout": 30,
+      "description": "官方Docker Hub仓库（备用）"
+    }
+  ],
+  "tag_transform": {
+    "enabled": true,
+    "rules": [
+      {
+        "name": "默认规则",
+        "description": "保持原始标签不变",
+        "pattern": ".*",
+        "replacement": "{original_tag}",
+        "enabled": true
+      },
+      {
+        "name": "添加前缀",
+        "description": "为标签添加自定义前缀",
+        "pattern": ".*",
+        "replacement": "custom-{original_tag}",
+        "enabled": false
+      },
+      {
+        "name": "版本号转换",
+        "description": "将latest转换为具体版本号",
+        "pattern": "latest",
+        "replacement": "v1.0.0",
+        "enabled": false
+      }
+    ]
+  },
+  "settings": {
+    "max_concurrent_registries": 5,
+    "retry_count": 3,
+    "remove_registry_prefix": true,
+    "default_architecture": "amd64",
+    "download_timeout": 300,
+    "enable_progress_bar": true,
+    "cleanup_temp_files": true,
+    "enable_advanced_api": true,
+    "advanced_api_url": "https://docker.aityp.com/api/v1"
+  }
+} 
