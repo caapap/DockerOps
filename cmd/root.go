@@ -292,11 +292,6 @@ func runPull(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Printf("\n🎉 镜像拉取成功！输出文件：%s\n", outputFile)
-
-	if !quiet {
-		fmt.Print("按回车键退出...")
-		bufio.NewReader(os.Stdin).ReadString('\n')
-	}
 }
 
 // runPush 执行推送命令
