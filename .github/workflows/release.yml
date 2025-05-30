@@ -1,0 +1,125 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+        
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+    - name: Install dependencies
+      run: go mod tidy
+      
+    - name: Build for multiple platforms
+      run: |
+        mkdir -p build
+        
+        # 设置构建标志
+        LDFLAGS="-s -w -X dockerops/cmd.VERSION=${{ steps.get_version.outputs.VERSION }}"
+        
+        # 构建各平台版本
+        echo "构建 Windows amd64..."
+        GOOS=windows GOARCH=amd64 go build -ldflags="$LDFLAGS" -o build/DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.exe main.go
+        
+        echo "构建 Linux amd64..."
+        GOOS=linux GOARCH=amd64 go build -ldflags="$LDFLAGS" -o build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64 main.go
+        
+        echo "构建 Linux arm64..."
+        GOOS=linux GOARCH=arm64 go build -ldflags="$LDFLAGS" -o build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64 main.go
+        
+        echo "构建 macOS arm64..."
+        GOOS=darwin GOARCH=arm64 go build -ldflags="$LDFLAGS" -o build/DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64 main.go
+        
+    - name: Create release packages
+      run: |
+        cd build
+        
+        # 为Windows版本创建zip包
+        zip DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.zip DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.exe ../config.json ../README.md
+        
+        # 为Unix版本创建tar.gz包
+        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64 ../config.json ../README.md
+        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64 ../config.json ../README.md
+        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64 ../config.json ../README.md
+        
+        # 列出所有文件
+        ls -la
+        
+    - name: Generate changelog
+      id: changelog
+      run: |
+        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+        echo "## DockerOps ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 新功能" >> $GITHUB_OUTPUT
+        echo "- 🚀 增强版Docker镜像拉取工具" >> $GITHUB_OUTPUT
+        echo "- 🔍 多镜像仓库搜索和自动故障转移" >> $GITHUB_OUTPUT
+        echo "- ⚙️ 配置文件管理镜像仓库" >> $GITHUB_OUTPUT
+        echo "- 🏷️ 标签转换规则支持" >> $GITHUB_OUTPUT
+        echo "- 🌐 跨平台支持 (Windows, Linux, macOS)" >> $GITHUB_OUTPUT
+        echo "- 📊 进度条显示和并发下载" >> $GITHUB_OUTPUT
+        echo "- 📦 Docker镜像推送、加载、保存等操作" >> $GITHUB_OUTPUT
+        echo "- 🇨🇳 优先使用国内镜像源，自动选择最快源" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 支持的命令" >> $GITHUB_OUTPUT
+        echo "- \`pull\` - 拉取Docker镜像" >> $GITHUB_OUTPUT
+        echo "- \`push\` - 推送镜像到仓库" >> $GITHUB_OUTPUT
+        echo "- \`load\` - 从本地tar文件加载镜像" >> $GITHUB_OUTPUT
+        echo "- \`save\` - 保存镜像到本地tar文件" >> $GITHUB_OUTPUT
+        echo "- \`save-compose\` - 保存docker-compose.yml中的镜像" >> $GITHUB_OUTPUT
+        echo "- \`match\` - 匹配指定前缀的镜像" >> $GITHUB_OUTPUT
+        echo "- \`list\` - 列出配置的镜像仓库" >> $GITHUB_OUTPUT
+        echo "- \`config show\` - 显示当前配置" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 下载说明" >> $GITHUB_OUTPUT
+        echo "请根据您的操作系统选择对应的版本：" >> $GITHUB_OUTPUT
+        echo "- **Windows**: DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.zip" >> $GITHUB_OUTPUT
+        echo "- **Linux**: DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64.tar.gz" >> $GITHUB_OUTPUT
+        echo "- **macOS**: DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64.tar.gz (Apple Silicon)" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 使用方法" >> $GITHUB_OUTPUT
+        echo "1. 下载对应平台的压缩包" >> $GITHUB_OUTPUT
+        echo "2. 解压到任意目录" >> $GITHUB_OUTPUT
+        echo "3. 运行 \`./DockerOps --help\` 查看帮助信息" >> $GITHUB_OUTPUT
+        echo "4. 运行 \`./DockerOps pull nginx:latest\` 开始拉取镜像" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        name: DockerOps ${{ steps.get_version.outputs.VERSION }}
+        body: ${{ steps.changelog.outputs.CHANGELOG }}
+        draft: false
+        prerelease: false
+        files: |
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.zip
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64.tar.gz
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64.tar.gz
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64.tar.gz
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.exe
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64
+          build/DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64
+          config.json
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
