@@ -168,6 +168,17 @@ func init() {
 	configCmd.AddCommand(configInitCmd)
 }
 
+// showBanner 显示DockerOps的ASCII艺术图案
+func showBanner() {
+	fmt.Println(`
+    ____             __              ____            
+   / __ \____  _____/ /_____  _____ / __ \____  _____
+  / / / / __ \/ ___/ //_/ _ \/ ___// / / / __ \/ ___/
+ / /_/ / /_/ / /__/ ,< /  __/ /   / /_/ / /_/ (__  ) 
+/_____/\____/\___/_/|_|\___/_/    \____/ .___/____/  
+                                      /_/            `)
+}
+
 // Execute 执行根命令
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
@@ -178,10 +189,9 @@ func Execute() {
 
 // runPull 执行拉取命令
 func runPull(cmd *cobra.Command, args []string) {
-	fmt.Printf("欢迎使用增强版 Docker 镜像拉取工具 %s\n", VERSION)
-
 	// 显示帮助信息
 	if len(args) == 0 && !quiet {
+		showBanner()
 		fmt.Println("\n这是一个多功能的 Docker 镜像管理工具，支持以下功能：")
 		fmt.Println("  - pull: 拉取Docker镜像")
 		fmt.Println("  - push: 推送镜像到仓库")
@@ -233,6 +243,10 @@ func runPull(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 	}
+
+	// 显示个性化欢迎信息
+	showBanner()
+	fmt.Printf("正在为您拉取镜像: %s\n", image)
 
 	// 获取架构
 	if arch == "" {
@@ -484,6 +498,7 @@ func runMatch(cmd *cobra.Command, args []string) {
 
 // runList 执行列出仓库命令
 func runList(cmd *cobra.Command, args []string) {
+	showBanner()
 	configManager := config.NewConfigManager(configFile)
 	registries := configManager.GetRegistries()
 
@@ -503,6 +518,7 @@ func runList(cmd *cobra.Command, args []string) {
 
 // runConfigShow 显示配置
 func runConfigShow(cmd *cobra.Command, args []string) {
+	showBanner()
 	configManager := config.NewConfigManager(configFile)
 	config := configManager.GetConfig()
 
@@ -533,6 +549,7 @@ func runConfigShow(cmd *cobra.Command, args []string) {
 
 // runConfigInit 执行配置初始化命令
 func runConfigInit(cmd *cobra.Command, args []string) {
+	showBanner()
 	// 检查配置文件是否已存在
 	if _, err := os.Stat(configFile); err == nil {
 		fmt.Printf("配置文件 %s 已存在\n", configFile)
@@ -613,6 +630,7 @@ func extractImagesFromCompose(content string) []string {
 
 // runSearch 执行搜索命令
 func runSearch(cmd *cobra.Command, args []string) {
+	showBanner()
 	image := args[0]
 	fmt.Printf("正在使用高级API搜索Docker镜像: %s\n", image)
 
