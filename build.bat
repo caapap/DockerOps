@@ -3,7 +3,7 @@ chcp 65001 >nul
 
 REM DockerOps Windows 构建脚本
 
-set VERSION=v2.0.0
+set VERSION=v0.1
 set APP_NAME=DockerOps
 set BUILD_DIR=build
 

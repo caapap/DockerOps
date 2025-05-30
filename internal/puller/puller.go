@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -86,14 +87,25 @@ type MultiRegistryImagePuller struct {
 
 // NewMultiRegistryImagePuller 创建多仓库镜像拉取器
 func NewMultiRegistryImagePuller(configManager *config.ConfigManager) *MultiRegistryImagePuller {
-	// 创建HTTP客户端，禁用SSL验证
+	// 创建HTTP客户端，禁用SSL验证，增加重试和超时配置
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		// 增加连接池配置
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 10,
+		IdleConnTimeout:     90 * time.Second,
+		// 增加连接超时配置
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		ResponseHeaderTimeout: 30 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
 	}
 
 	client := &http.Client{
 		Transport: tr,
-		Timeout:   30 * time.Second,
+		Timeout:   300 * time.Second, // 增加到5分钟，适合大文件下载
 	}
 
 	// 创建高级API客户端，使用配置中的URL

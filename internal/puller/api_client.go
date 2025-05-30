@@ -163,8 +163,13 @@ func (c *AdvancedAPIClient) ConvertToRegistryInfo(apiResult *APIImageResult) (st
 	// 第一部分是仓库地址
 	registryURL := parts[0]
 
-	// 其余部分是镜像路径
+	// 其余部分是镜像路径，需要去掉标签
 	imagePath := strings.Join(parts[1:], "/")
+
+	// 去掉标签部分（:v0.7.2）
+	if colonIndex := strings.LastIndex(imagePath, ":"); colonIndex != -1 {
+		imagePath = imagePath[:colonIndex]
+	}
 
 	return registryURL, imagePath
 }

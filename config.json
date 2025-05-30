@@ -26,11 +26,10 @@
     },
     {
       "name": "xuanyuan",
-      "url": "docker.xuanyuan.top",
-      "priority": 5,
-      "auth_required": false,
-      "timeout": 15,
-      "description": "xuanyuan容器镜像服务"
+      "url": "docker.xuanyuan.me",
+      "auth_url": "https://docker.xuanyuan.me/v2/",
+      "service": "docker.xuanyuan.me",
+      "scope_format": "repository:%s:pull"
     },
     {
       "name": "Docker Hub",
