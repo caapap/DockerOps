@@ -18,10 +18,10 @@ DockerOps 是一个增强版的 Docker 镜像拉取工具，专为解决国内 D
 - 🔄 **自动故障转移** - 当一个仓库不可用时自动切换到下一个
 - ⚡ **并发下载** - 支持多线程并发下载，提升下载速度
 - 📊 **进度条显示** - 实时显示下载进度
+- 🔍 **高级镜像搜索** - 使用高级API在多个仓库中搜索镜像，提供详细信息
 - 🔧 **配置文件管理** - 通过 JSON 配置文件管理镜像仓库
 - 🏷️ **标签转换规则** - 智能标签转换和映射
 - 🌐 **跨平台支持** - 支持 Windows、Linux、macOS
-- 🔍 **镜像搜索** - 支持在多个仓库中搜索镜像
 - 📦 **镜像管理** - 支持镜像推送、加载、保存等操作
 
 ## 🛠️ 安装
@@ -56,6 +56,12 @@ go build -o dockerops main.go
 # 拉取镜像
 ./dockerops pull nginx:latest
 
+# 使用高级API搜索镜像
+./dockerops search nginx
+
+# 按架构过滤搜索
+./dockerops search --arch amd64 nginx
+
 # 指定架构
 ./dockerops pull --arch linux/amd64 nginx:latest
 
@@ -82,6 +88,10 @@ go build -o dockerops main.go
 ### 其他命令
 
 ```bash
+# 搜索镜像
+./dockerops search nginx
+./dockerops search --arch amd64 tensorflow
+
 # 查看版本
 ./dockerops version
 
@@ -90,6 +100,56 @@ go build -o dockerops main.go
 
 # 查看特定命令帮助
 ./dockerops pull --help
+./dockerops search --help
+```
+
+## 🔍 镜像搜索
+
+DockerOps 提供强大的镜像搜索功能，集成高级API：
+
+### 搜索特性
+
+- **多仓库搜索** - 同时在多个镜像仓库中搜索
+- **架构过滤** - 按特定架构过滤结果（amd64、arm64等）
+- **详细信息** - 获取包括大小、平台、创建时间在内的全面镜像信息
+- **镜像发现** - 自动发现镜像的可用镜像源
+
+### 搜索示例
+
+```bash
+# 基本搜索
+./dockerops search nginx
+
+# 按架构过滤搜索
+./dockerops search --arch amd64 tensorflow
+
+# 搜索特定版本
+./dockerops search python:3.9
+
+# 搜索AI/ML镜像
+./dockerops search pytorch
+./dockerops search --arch arm64 tensorflow
+```
+
+### 搜索输出
+
+搜索命令为每个找到的镜像提供详细信息：
+
+```
+找到 3 个匹配的镜像:
+================================================================================
+
+[1] docker.io/nginx:latest
+    镜像源: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:latest
+    平台: linux/amd64
+    大小: 187MB
+    创建时间: 2024-01-15T10:30:00Z
+
+[2] docker.io/nginx:alpine
+    镜像源: registry.cn-hangzhou.aliyuncs.com/nginx:alpine
+    平台: linux/amd64
+    大小: 23MB
+    创建时间: 2024-01-10T08:15:00Z
 ```
 
 ## ⚙️ 配置

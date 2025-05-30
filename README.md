@@ -20,10 +20,10 @@ DockerOps is an enhanced Docker image pulling tool designed to solve Docker imag
 - 🔄 **Automatic Failover** - Automatically switches to the next registry when one is unavailable
 - ⚡ **Concurrent Downloads** - Supports multi-threaded concurrent downloads for improved speed
 - 📊 **Progress Bar Display** - Real-time download progress visualization
+- 🔍 **Advanced Image Search** - Search images across multiple registries using advanced API with detailed information
 - 🔧 **Configuration Management** - Manage image registries through JSON configuration files
 - 🏷️ **Tag Transformation Rules** - Intelligent tag conversion and mapping
 - 🌐 **Cross-Platform Support** - Supports Windows, Linux, macOS
-- 🔍 **Image Search** - Search images across multiple registries
 - 📦 **Image Management** - Support for image push, load, save operations
 
 ## 🛠️ Installation
@@ -58,6 +58,12 @@ Download the corresponding platform's pre-compiled binary from the [Releases](ht
 # Pull an image
 ./DockerOps pull nginx:latest
 
+# Search for images using advanced API
+./DockerOps search nginx
+
+# Search with architecture filter
+./DockerOps search --arch amd64 nginx
+
 # Specify architecture
 ./DockerOps pull --arch linux/amd64 nginx:latest
 
@@ -84,6 +90,10 @@ Download the corresponding platform's pre-compiled binary from the [Releases](ht
 ### Other Commands
 
 ```bash
+# Search for images
+./DockerOps search nginx
+./DockerOps search --arch amd64 tensorflow
+
 # Check version
 ./DockerOps version
 
@@ -92,6 +102,56 @@ Download the corresponding platform's pre-compiled binary from the [Releases](ht
 
 # Show specific command help
 ./DockerOps pull --help
+./DockerOps search --help
+```
+
+## 🔍 Image Search
+
+DockerOps provides powerful image search capabilities using advanced API integration:
+
+### Search Features
+
+- **Multi-Registry Search** - Search across multiple registries simultaneously
+- **Architecture Filtering** - Filter results by specific architectures (amd64, arm64, etc.)
+- **Detailed Information** - Get comprehensive image details including size, platform, creation time
+- **Mirror Discovery** - Automatically discover available mirrors for images
+
+### Search Examples
+
+```bash
+# Basic search
+./DockerOps search nginx
+
+# Search with architecture filter
+./DockerOps search --arch amd64 tensorflow
+
+# Search for specific versions
+./DockerOps search python:3.9
+
+# Search for AI/ML images
+./DockerOps search pytorch
+./DockerOps search --arch arm64 tensorflow
+```
+
+### Search Output
+
+The search command provides detailed information for each found image:
+
+```
+找到 3 个匹配的镜像:
+================================================================================
+
+[1] docker.io/nginx:latest
+    镜像源: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:latest
+    平台: linux/amd64
+    大小: 187MB
+    创建时间: 2024-01-15T10:30:00Z
+
+[2] docker.io/nginx:alpine
+    镜像源: registry.cn-hangzhou.aliyuncs.com/nginx:alpine
+    平台: linux/amd64
+    大小: 23MB
+    创建时间: 2024-01-10T08:15:00Z
 ```
 
 ## ⚙️ Configuration
