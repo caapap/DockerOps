@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-v2.0.0-orange.svg)](https://github.com/yourusername/DockerOps/releases)
 
-**[中文文档 / Chinese Documentation](README_CN.md)**
+[English](./README.md) | [中文](./README_CN.md)
 
 DockerOps is an enhanced Docker image pulling tool designed to solve Docker image pulling difficulties in China. It supports multi-registry search, automatic failover, concurrent downloads, and more.
 
