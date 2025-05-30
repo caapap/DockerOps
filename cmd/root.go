@@ -35,11 +35,14 @@ var rootCmd = &cobra.Command{
 	Short: "增强版 Docker 镜像拉取工具 - 支持多仓库搜索和镜像管理",
 	Long: `DockerOps 是一个增强版的 Docker 镜像拉取工具，支持：
 - 多镜像仓库搜索和自动故障转移
-- 配置文件管理镜像仓库
+- 配置文件管理镜像仓库（首次运行时自动创建）
 - 标签转换规则
 - 跨平台支持 (Windows, Linux, macOS)
 - 进度条显示和并发下载
-- Docker镜像推送、加载、保存等操作`,
+- Docker镜像推送、加载、保存等操作
+
+首次使用时，工具会自动创建默认配置文件 config.json
+您也可以使用 'DockerOps config init' 手动初始化配置文件`,
 	Version: VERSION,
 	Run:     runPull,
 }
@@ -119,6 +122,14 @@ var configShowCmd = &cobra.Command{
 	Run:   runConfigShow,
 }
 
+// configInitCmd 初始化配置命令
+var configInitCmd = &cobra.Command{
+	Use:   "init",
+	Short: "初始化配置文件",
+	Long:  "创建默认的配置文件，如果文件已存在则询问是否覆盖",
+	Run:   runConfigInit,
+}
+
 // searchCmd 搜索命令
 var searchCmd = &cobra.Command{
 	Use:   "search [IMAGE]",
@@ -154,6 +165,7 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(configCmd)
 	configCmd.AddCommand(configShowCmd)
+	configCmd.AddCommand(configInitCmd)
 }
 
 // Execute 执行根命令
@@ -179,12 +191,15 @@ func runPull(cmd *cobra.Command, args []string) {
 		fmt.Println("  - match: 匹配指定前缀的镜像")
 		fmt.Println("  - list: 列出配置的镜像仓库")
 		fmt.Println("  - config show: 显示当前配置")
+		fmt.Println("  - config init: 初始化配置文件")
 		fmt.Println("\n使用 'DockerOps [command] --help' 查看具体命令帮助")
 		fmt.Println("\n示例:")
 		fmt.Println("  DockerOps pull nginx:latest")
 		fmt.Println("  DockerOps pull nginx:latest --arch arm64")
 		fmt.Println("  DockerOps list")
 		fmt.Println("  DockerOps config show")
+		fmt.Println("  DockerOps config init")
+		fmt.Println("\n💡 首次使用时会自动创建配置文件，您也可以手动编辑 config.json 来自定义设置")
 		return
 	}
 
@@ -514,6 +529,36 @@ func runConfigShow(cmd *cobra.Command, args []string) {
 		fmt.Printf("     替换: %s\n", rule.Replacement)
 		fmt.Printf("     描述: %s\n", rule.Description)
 	}
+}
+
+// runConfigInit 执行配置初始化命令
+func runConfigInit(cmd *cobra.Command, args []string) {
+	// 检查配置文件是否已存在
+	if _, err := os.Stat(configFile); err == nil {
+		fmt.Printf("配置文件 %s 已存在\n", configFile)
+		fmt.Print("是否要覆盖现有配置文件？(y/N): ")
+
+		reader := bufio.NewReader(os.Stdin)
+		response, _ := reader.ReadString('\n')
+		response = strings.TrimSpace(strings.ToLower(response))
+
+		if response != "y" && response != "yes" {
+			fmt.Println("操作已取消")
+			return
+		}
+	}
+
+	// 创建配置管理器并保存默认配置
+	configManager := config.NewConfigManager(configFile)
+
+	if err := configManager.SaveConfig(); err != nil {
+		fmt.Fprintf(os.Stderr, "创建配置文件失败: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("✅ 成功创建配置文件: %s\n", configFile)
+	fmt.Println("💡 您可以编辑此文件来自定义镜像仓库配置")
+	fmt.Printf("📖 使用 'DockerOps config show' 查看当前配置\n")
 }
 
 // 辅助函数

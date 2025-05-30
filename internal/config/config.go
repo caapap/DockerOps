@@ -76,8 +76,16 @@ func NewConfigManager(configFile string) *ConfigManager {
 // loadConfig 加载配置文件
 func (cm *ConfigManager) loadConfig() {
 	if _, err := os.Stat(cm.configFile); os.IsNotExist(err) {
-		log.Printf("配置文件 %s 不存在，使用默认配置", cm.configFile)
+		log.Printf("配置文件 %s 不存在，创建默认配置文件", cm.configFile)
 		cm.config = cm.getDefaultConfig()
+
+		// 自动创建默认配置文件
+		if err := cm.SaveConfig(); err != nil {
+			log.Printf("⚠️ 创建默认配置文件失败: %v，将使用内存中的默认配置", err)
+		} else {
+			log.Printf("✅ 已创建默认配置文件: %s", cm.configFile)
+			log.Printf("💡 您可以编辑此文件来自定义镜像仓库配置")
+		}
 		return
 	}
 
@@ -230,4 +238,25 @@ func (cm *ConfigManager) SaveConfig() error {
 
 	log.Printf("配置已保存到: %s", cm.configFile)
 	return nil
+}
+
+// ConfigFileExists 检查配置文件是否存在
+func (cm *ConfigManager) ConfigFileExists() bool {
+	_, err := os.Stat(cm.configFile)
+	return !os.IsNotExist(err)
+}
+
+// CreateDefaultConfigFile 创建默认配置文件
+func (cm *ConfigManager) CreateDefaultConfigFile() error {
+	if cm.ConfigFileExists() {
+		return fmt.Errorf("配置文件 %s 已存在", cm.configFile)
+	}
+
+	cm.config = cm.getDefaultConfig()
+	return cm.SaveConfig()
+}
+
+// GetConfigFilePath 获取配置文件路径
+func (cm *ConfigManager) GetConfigFilePath() string {
+	return cm.configFile
 }
