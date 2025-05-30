@@ -32,7 +32,7 @@ DockerOps is an enhanced Docker image pulling tool designed to solve Docker imag
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/DockerOps.git
+git clone https://github.com/caapap/DockerOps.git
 cd DockerOps
 
 # Build
@@ -48,7 +48,7 @@ go build -o DockerOps main.go
 
 ### Pre-compiled Binaries
 
-Download the corresponding platform's pre-compiled binary from the [Releases](https://github.com/yourusername/DockerOps/releases) page.
+Download the corresponding platform's pre-compiled binary from the [Releases](https://github.com/caapap/DockerOps/releases) page.
 
 ## 📖 Usage
 
@@ -186,7 +186,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you have any questions or suggestions, please contact us through:
 
-- Submit an [Issue](https://github.com/yourusername/DockerOps/issues)
+- Submit an [Issue](https://github.com/caapap/DockerOps/issues)
 - Send email to: your-email@example.com
 
 ---
