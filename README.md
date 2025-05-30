@@ -8,6 +8,12 @@
 
 DockerOps is an enhanced Docker image pulling tool designed to solve Docker image pulling difficulties in China. It supports multi-registry search, automatic failover, concurrent downloads, and more.
 
+## 🎬 Demo
+
+![DockerOps Demo](test-speed.png)
+
+*DockerOps successfully pulling a large image (vllm-openai:v0.7.2, 16.53GB) with real-time progress display and high-speed downloads*
+
 ## ✨ Features
 
 - 🚀 **Multi-Registry Support** - Supports multiple Chinese registries including Alibaba Cloud, Tencent Cloud, Huawei Cloud
