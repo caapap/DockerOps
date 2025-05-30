@@ -30,7 +30,7 @@ DockerOps 是一个增强版的 Docker 镜像拉取工具，专为解决国内 D
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/DockerOps.git
+git clone https://github.com/caapap/DockerOps.git
 cd DockerOps
 
 # 编译
@@ -46,7 +46,7 @@ go build -o dockerops main.go
 
 ### 预编译二进制文件
 
-从 [Releases](https://github.com/yourusername/DockerOps/releases) 页面下载对应平台的预编译二进制文件。
+从 [Releases](https://github.com/caapap/DockerOps/releases) 页面下载对应平台的预编译二进制文件。
 
 ## 📖 使用方法
 
@@ -184,8 +184,8 @@ DockerOps/
 
 如有问题或建议，请通过以下方式联系：
 
-- 提交 [Issue](https://github.com/yourusername/DockerOps/issues)
-- 发送邮件到：your-email@example.com
+- 提交 [Issue](https://github.com/caapap/DockerOps/issues)
+- 发送邮件到：caapap@qq.com
 
 ---
 

@@ -187,7 +187,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If you have any questions or suggestions, please contact us through:
 
 - Submit an [Issue](https://github.com/caapap/DockerOps/issues)
-- Send email to: your-email@example.com
+- Send email to: caapap@qq.com
 
 ---
 
