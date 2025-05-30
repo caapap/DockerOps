@@ -50,6 +50,8 @@ go build -o DockerOps main.go
 
 Download the corresponding platform's pre-compiled binary from the [Releases](https://github.com/caapap/DockerOps/releases) page.
 
+**Note**: The configuration file `config.json` will be automatically created on first run. You don't need to download it separately.
+
 ## 📖 Usage
 
 ### Basic Usage

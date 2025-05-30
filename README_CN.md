@@ -46,7 +46,9 @@ go build -o dockerops main.go
 
 ### 预编译二进制文件
 
-从 [Releases](https://github.com/caapap/DockerOps/releases) 页面下载对应平台的预编译二进制文件。
+从 [Releases](https://github.com/yourusername/DockerOps/releases) 页面下载对应平台的预编译二进制文件。
+
+**注意**: 配置文件 `config.json` 会在首次运行时自动创建，无需单独下载。
 
 ## 📖 使用方法
 

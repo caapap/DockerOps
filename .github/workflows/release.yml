@@ -54,12 +54,12 @@ jobs:
         cd build
         
         # 为Windows版本创建zip包
-        zip DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.zip DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.exe ../config.json ../README.md
+        zip DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.zip DockerOps-${{ steps.get_version.outputs.VERSION }}-windows-amd64.exe ../README.md
         
         # 为Unix版本创建tar.gz包
-        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64 ../config.json ../README.md
-        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64 ../config.json ../README.md
-        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64 ../config.json ../README.md
+        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64 ../README.md
+        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64 ../README.md
+        tar -czf DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64.tar.gz DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64 ../README.md
         
         # 列出所有文件
         ls -la
@@ -120,6 +120,5 @@ jobs:
           build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-amd64
           build/DockerOps-${{ steps.get_version.outputs.VERSION }}-linux-arm64
           build/DockerOps-${{ steps.get_version.outputs.VERSION }}-darwin-arm64
-          config.json
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
