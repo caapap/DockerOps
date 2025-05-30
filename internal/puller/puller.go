@@ -144,7 +144,9 @@ func (p *MultiRegistryImagePuller) ParseImageInput(imageInput string) ImageInfo 
 	var repo, imgTag string
 
 	if len(parts) == 1 {
-		repo = "library"
+		// 对于单个名称的镜像，不自动添加library前缀
+		// 用户需要明确指定是否为官方镜像
+		repo = ""
 		imgTag = parts[0]
 	} else {
 		repo = strings.Join(parts[:len(parts)-1], "/")
@@ -152,7 +154,13 @@ func (p *MultiRegistryImagePuller) ParseImageInput(imageInput string) ImageInfo 
 	}
 
 	img, tag := parseImageTag(imgTag)
-	repository := fmt.Sprintf("%s/%s", repo, img)
+
+	var repository string
+	if repo == "" {
+		repository = img
+	} else {
+		repository = fmt.Sprintf("%s/%s", repo, img)
+	}
 
 	return ImageInfo{
 		Repository: repository,
@@ -470,13 +478,9 @@ func (p *MultiRegistryImagePuller) SearchImageInRegistries(imageInput, arch, use
 	for _, registry := range availableRegistries {
 		log.Printf("正在尝试 %s (%s)...", registry.Name, registry.URL)
 
-		// 对于Docker Hub，调整repository格式
+		// 使用原始的repository名称，不做任何修改
+		// 用户需要明确指定完整的镜像路径
 		searchRepository := originalImageInfo.Repository
-		if registry.URL == "registry-1.docker.io" && !strings.HasPrefix(originalImageInfo.Repository, "library/") {
-			if !strings.Contains(originalImageInfo.Repository, "/") {
-				searchRepository = "library/" + originalImageInfo.Repository
-			}
-		}
 
 		// 获取认证令牌
 		token, err := p.GetAuthToken(&registry, searchRepository, username, password)
