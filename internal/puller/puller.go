@@ -4,7 +4,6 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"context"
-	"crypto/sha256"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
@@ -668,7 +667,7 @@ func (p *MultiRegistryImagePuller) PullImage(imageInput, arch, username, passwor
 	}
 
 	// 下载层
-	if err := p.downloadLayers(registry, imageInfo, manifest.Layers, token, tmpDir); err != nil {
+	if err := p.downloadLayers(registry, imageInfo, manifest, token, tmpDir); err != nil {
 		return "", fmt.Errorf("下载层失败: %v", err)
 	}
 
@@ -692,17 +691,18 @@ func (p *MultiRegistryImagePuller) PullImage(imageInput, arch, username, passwor
 }
 
 // downloadLayers 下载镜像层
-func (p *MultiRegistryImagePuller) downloadLayers(registry *config.RegistryConfig, imageInfo ImageInfo, layers []LayerDescriptor, token, tmpDir string) error {
+// func (p *MultiRegistryImagePuller) downloadLayers(registry *config.RegistryConfig, imageInfo ImageInfo, layers []LayerDescriptor, token, tmpDir string) error {
+func (p *MultiRegistryImagePuller) downloadLayers(registry *config.RegistryConfig, imageInfo ImageInfo, manifest *ManifestResponse, token, tmpDir string) error {
 	// 创建层目录和JSON映射
 	layerJSONMap := make(map[string]map[string]interface{})
 	var parentID string
 	var layerPaths []string
+	var lastLayerID string
 
 	// 下载所有层
-	for i, layer := range layers {
-		// 生成假的层ID
-		hash := sha256.Sum256([]byte(parentID + "\n" + layer.Digest + "\n"))
-		fakeLayerID := fmt.Sprintf("%x", hash)
+	for i, layer := range manifest.Layers {
+		// 使用真是的层digest ID
+		fakeLayerID := layer.Digest[7:] // 去掉sha256:前缀
 
 		layerDir := filepath.Join(tmpDir, fakeLayerID)
 		if err := os.MkdirAll(layerDir, 0755); err != nil {
@@ -722,7 +722,7 @@ func (p *MultiRegistryImagePuller) downloadLayers(registry *config.RegistryConfi
 		layerURL := fmt.Sprintf("https://%s/v2/%s/blobs/%s", registry.URL, imageInfo.Repository, layer.Digest)
 		gzipPath := filepath.Join(layerDir, "layer_gzip.tar")
 
-		desc := fmt.Sprintf("Layer %d/%d", i+1, len(layers))
+		desc := fmt.Sprintf("Layer %d/%d", i+1, len(manifest.Layers))
 		if err := p.DownloadFileWithProgress(layerURL, token, gzipPath, desc); err != nil {
 			return fmt.Errorf("下载层 %s 失败: %v", layer.Digest[:12], err)
 		}
@@ -745,6 +745,7 @@ func (p *MultiRegistryImagePuller) downloadLayers(registry *config.RegistryConfi
 
 		layerPaths = append(layerPaths, fakeLayerID+"/layer.tar")
 		parentID = fakeLayerID
+		lastLayerID = fakeLayerID
 	}
 
 	// 创建manifest.json
@@ -755,7 +756,8 @@ func (p *MultiRegistryImagePuller) downloadLayers(registry *config.RegistryConfi
 
 	manifestContent := []map[string]interface{}{
 		{
-			"Config":   filepath.Base(tmpDir) + "/" + layers[0].Digest[7:] + ".json",
+			// "Config":   filepath.Base(tmpDir) + "/" + layers[0].Digest[7:] + ".json",
+			"Config":   manifest.Config.Digest[7:] + ".json",
 			"RepoTags": []string{repoTag},
 			"Layers":   layerPaths,
 		},
@@ -770,7 +772,7 @@ func (p *MultiRegistryImagePuller) downloadLayers(registry *config.RegistryConfi
 	// 创建repositories文件
 	repositories := map[string]map[string]string{
 		imageInfo.Image: {
-			imageInfo.Tag: parentID,
+			imageInfo.Tag: lastLayerID, // 使用最后一个层的digest ID
 		},
 	}
 
@@ -844,7 +846,7 @@ func (p *MultiRegistryImagePuller) createImageTar(tmpDir string, imageInfo Image
 			return err
 		}
 
-		header.Name = relPath
+		header.Name = filepath.ToSlash(relPath)
 
 		if err := tarWriter.WriteHeader(header); err != nil {
 			return err
